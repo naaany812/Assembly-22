@@ -9,7 +9,7 @@ class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, nullable=False)
     description = db.Column(db.String, nullable=False)
-    data = db.Column(db.Date, nullable=False)
+    data = db.Column(db.String, nullable=False)
     time = db.Column(db.Time, nullable=False)
     type = db.Column(db.String, nullable=False)
     category = db.Column(db.String, nullable=False)
@@ -19,6 +19,7 @@ class Event(db.Model):
         db.String,
         db.ForeignKey("locations.code"),
         nullable=False)
+    location = db.relationship("Location")
     participants = db.relationship("Enrollment", back_populates="event")
 
 
@@ -26,9 +27,9 @@ class Participant(db.Model):
     __tablename__ = 'participants'
     uid = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
-    email = db.Column(db.String, unique=True)
+    email = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
-    picture = db.Column(db.String, nullable=False)
+    picture = db.Column(db.String)
     location = db.Column(db.String, nullable=False)
     about = db.Column(db.String, nullable=False)
     enrollments = db.relationship(
