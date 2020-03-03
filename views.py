@@ -6,25 +6,31 @@ from assembly22.scheme import participant_scheme, location_scheme, event_scheme
 from datetime import datetime
 
 
+# return json of participant without password
 def get_json_participant_without_password(participant):
     participant_json = participant_scheme.dump(participant)
     participant_json.pop("password")
     return participant_json
 
 
+# return all locations from db
 @app.route("/locations/", methods=["GET"])
 def locations():
     locations = db.session.query(Location).all()
+    # if there is no locations then empty list is returned
     if not locations:
         return jsonify([])
     return jsonify(location_scheme.dump(locations))
 
 
+# return events
+# can be used with eventtype and location filters
 @app.route("/events/", methods=["GET"])
 def events():
     eventtype = request.args.get("eventtype")
     location = request.args.get("location")
     events = db.session.query(Event)
+    # check that filters exist and use it
     if eventtype:
         events = events.filter(Event.type == eventtype)
     if location:
@@ -34,11 +40,16 @@ def events():
     return jsonify(event_scheme.dump(events))
 
 
+# create enrollment if doesn't exist
+# delete enrollement if exist
+# return status of operation
 @app.route("/enrollments/<int:event_id>", methods=["POST", "DELETE"])
 def post_enrollements(event_id):
     event = db.session.query(Event).get(event_id)
+    # check that event exists
     if not event:
         return jsonify({"status": "No event error"}), 500
+    # create enrollment flow
     if request.method == "POST":
         registrations = len(db.session.query(Enrollment).filter(
             Enrollment.event_id == event_id).all())
@@ -64,6 +75,7 @@ def post_enrollements(event_id):
                 return jsonify({"status": "db error"}), 500
             return jsonify({"status": "success"})
         return jsonify({"status": "seats error"}), 500
+    # delete enrollment flow
     elif request.method == "DELETE":
         user = session.get("user")
         if not user:
@@ -81,6 +93,8 @@ def post_enrollements(event_id):
         return jsonify({"status": "success"})
 
 
+# register new participant
+# return json with participant data
 @app.route("/register/", methods=["POST"])
 def register():
     data = request.json
@@ -107,6 +121,8 @@ def register():
     )
 
 
+# auth by participant and create variable in session with uid and email
+# return json with participant data without password
 @app.route("/auth/", methods=["POST"])
 def auth():
     data = request.json
@@ -125,6 +141,7 @@ def auth():
     return jsonify(get_json_participant_without_password(participant))
 
 
+# return participant profile without password
 @app.route("/profile/<int:uid>", methods=["GET"])
 def profile(uid):
     participant = db.session.query(Participant).get(uid)
