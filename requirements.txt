@@ -16,7 +16,7 @@ httpie==2.0.0
 idna==2.9
 itsdangerous==1.1.0
 Jinja2==2.11.1
-Mako==1.1.1
+Mako==1.2.2
 MarkupSafe==1.1.1
 marshmallow==3.5.0
 mccabe==0.6.1
